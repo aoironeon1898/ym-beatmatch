@@ -20,6 +20,7 @@ patchedDependencies:
   kuromoji@0.1.2: patches/kuromoji@0.1.2.patch
   electron-is@3.0.0: patches/electron-is@3.0.0.patch
   mdui@2.1.5: patches/mdui@2.1.5.patch
+  signalsmith-stretch@1.3.2: patches/signalsmith-stretch@1.3.2.patch
 engineStrict: true
 minimumReleaseAgeExclude:
   - vite@8.1.0

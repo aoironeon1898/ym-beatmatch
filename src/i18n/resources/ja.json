@@ -375,6 +375,19 @@
         }
       }
     },
+    "beatmatch": {
+      "description": "DJ のように曲間のテンポと拍を合わせてつなぎます（Premium 推奨）",
+      "name": "ビートマッチ [実験的]",
+      "menu": {
+        "mode-bgm": "BGM モード（ビートマッチ）",
+        "mode-normal": "通常モード（短いクロスフェード）",
+        "shortcut": "モード切り替え: {{shortcut}}",
+        "debug-log": "デバッグログを書き出す",
+        "clear-cache": "解析キャッシュを消去（{{count}} 曲）",
+        "warning-crossfade": "⚠ ビートマッチを使うには「クロスフェード」を無効にしてください",
+        "warning-skip-silences": "⚠「無音をスキップ」は拍合わせを狂わせることがあります"
+      }
+    },
     "blur-nav-bar": {
       "description": "ナビゲーションバーを透明かつぼやけにします",
       "name": "ナビゲーションバーの曇り効果"

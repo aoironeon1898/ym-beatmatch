@@ -311,7 +311,17 @@ async function onApiLoaded() {
 
   const video = document.querySelector('video')!;
   const audioContext = new AudioContext();
-  const audioSource = audioContext.createMediaElementSource(video);
+  // ym-beatmatch core patch (ADR-0001 / D2):
+  //   video → mediaSource → mainGain → mixBus → (plugins' chains) → destination
+  // Plugins keep receiving `audioSource` and connect/disconnect from it; it is now the
+  // mixBus so that beatmatch's own voices (tail / intro PCM) pass through the same chain,
+  // and beatmatch can fade the YTM player via `mainGain` without touching `video.volume`.
+  // With beatmatch disabled both gains stay at 1, so behaviour is unchanged.
+  const mediaSource = audioContext.createMediaElementSource(video);
+  const mainGain = audioContext.createGain();
+  const mixBus = audioContext.createGain();
+  mediaSource.connect(mainGain).connect(mixBus);
+  const audioSource = mixBus as unknown as MediaElementAudioSourceNode;
   audioSource.connect(audioContext.destination);
 
   for (const [id, plugin] of Object.entries(getAllLoadedRendererPlugins())) {
@@ -336,6 +346,9 @@ async function onApiLoaded() {
         detail: {
           audioContext,
           audioSource,
+          mediaSource,
+          mainGain,
+          mixBus,
         },
       }),
     );

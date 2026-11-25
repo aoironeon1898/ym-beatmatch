@@ -375,6 +375,19 @@
         }
       }
     },
+    "beatmatch": {
+      "description": "DJ-style transitions: match tempo and beats between songs (needs Premium)",
+      "name": "Beatmatch [Experimental]",
+      "menu": {
+        "mode-bgm": "BGM mode (beatmatch)",
+        "mode-normal": "Normal mode (short crossfade)",
+        "shortcut": "Toggle mode: {{shortcut}}",
+        "debug-log": "Write debug log",
+        "clear-cache": "Clear analysis cache ({{count}} songs)",
+        "warning-crossfade": "⚠ Disable \"Crossfade\" to use Beatmatch",
+        "warning-skip-silences": "⚠ \"Skip Silences\" may break beat alignment"
+      }
+    },
     "blur-nav-bar": {
       "description": "Makes navigation bar transparent and blurry",
       "name": "Blur Navigation Bar"

@@ -3,17 +3,13 @@ import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { Mutex } from 'async-mutex';
-import { BotGuardClient, getChallenge } from 'bgutils-js/botguard';
-import { buildURL, getHeaders } from 'bgutils-js/utils';
-import { WebPoMinter } from 'bgutils-js/webpo';
 import { app, type BrowserWindow, dialog, ipcMain } from 'electron';
 import is from 'electron-is';
 import filenamify from 'filenamify';
 import lazyVar from 'lazy-var';
 import NodeID3 from 'node-id3';
 import {
-  Innertube,
-  UniversalCache,
+  type Innertube,
   Utils,
   YTNodes,
   Platform,
@@ -23,7 +19,7 @@ import {
 } from '\u0079\u006f\u0075\u0074\u0075\u0062\u0065i.js';
 
 import { t } from '@/i18n';
-import { getNetFetchAsFetch } from '@/plugins/utils/main';
+import { getInnertubeSession } from '@/providers/innertube-session';
 import {
   registerCallback,
   cleanupName,
@@ -45,12 +41,6 @@ import { DefaultPresetList, type Preset, VideoFormatList } from '../types';
 import type { DownloaderPluginConfig } from '../index';
 import type { BackendContext } from '@/types/contexts';
 import type { GetPlayerResponse } from '@/types/get-player-response';
-import type {
-  FetchFunction,
-  IBotguardClientSideBgChallenge,
-  IntegrityTokenData,
-  WebPoSignalOutput,
-} from 'bgutils-js/shared-types';
 
 type CustomSongInfo = SongInfo & { trackId?: string };
 
@@ -86,51 +76,6 @@ Platform.shim.eval = (
 let yt: Innertube;
 let win: BrowserWindow;
 let playingUrl: string;
-
-const generatePoToken = async (
-  fetchFunction: FetchFunction,
-  requestKey: string,
-  identifier: string,
-  { program, globalName }: IBotguardClientSideBgChallenge,
-) => {
-  const botguard = await BotGuardClient.create({
-    program,
-    globalName,
-    globalObject: globalThis,
-  });
-
-  const webPoSignalOutput: WebPoSignalOutput = [];
-  const botguardResponse = await botguard.snapshot({ webPoSignalOutput });
-
-  const integrityTokenResponse = await fetchFunction(buildURL('GenerateIT'), {
-    method: 'POST',
-    headers: getHeaders(),
-    body: JSON.stringify([requestKey, botguardResponse]),
-  });
-  const [
-    integrityToken,
-    estimatedTtlSecs,
-    mintRefreshThreshold,
-    websafeFallbackToken,
-  ] = (await integrityTokenResponse.json()) as [
-    IntegrityTokenData['integrityToken'],
-    IntegrityTokenData['estimatedTtlSecs'],
-    IntegrityTokenData['mintRefreshThreshold'],
-    IntegrityTokenData['websafeFallbackToken'],
-  ];
-
-  const webPoMinter = await WebPoMinter.create(
-    {
-      integrityToken,
-      estimatedTtlSecs,
-      mintRefreshThreshold,
-      websafeFallbackToken,
-    },
-    webPoSignalOutput,
-  );
-
-  return webPoMinter.mintAsWebsafeString(identifier);
-};
 
 const isPremium = async () => {
   // If signed out, it is understood as non-premium
@@ -180,15 +125,7 @@ const sendError = (error: Error, source?: string) => {
   });
 };
 
-export const getCookieFromWindow = async (win: BrowserWindow) => {
-  return (
-    await win.webContents.session.cookies.get({
-      url: 'https://music.\u0079\u006f\u0075\u0074\u0075\u0062\u0065.com',
-    })
-  )
-    .map((it) => it.name + '=' + it.value)
-    .join(';');
-};
+export { getCookieFromWindow } from '@/providers/innertube-session';
 
 let config: DownloaderPluginConfig;
 
@@ -200,66 +137,8 @@ export const onMainLoad = async ({
   win = _win;
   config = await getConfig();
 
-  yt = await Innertube.create({
-    cache: new UniversalCache(false),
-    cookie: await getCookieFromWindow(win),
-    generate_session_locally: true,
-    fetch: getNetFetchAsFetch(),
-  });
-
-  const requestKey = 'O43z0dpjhgX20SCx4KAo';
-  const visitorData = yt.session.context.client.visitorData;
-
-  if (visitorData) {
-    const cleanUp = (context: Partial<typeof globalThis>) => {
-      delete context.window;
-      delete context.document;
-    };
-
-    try {
-      const [width, height] = win.getSize();
-      // emulate jsdom using linkedom
-      const window = new (await import('happy-dom')).Window({
-        width,
-        height,
-        console,
-        settings: { enableIframePageLoading: true },
-      });
-      const document = window.document;
-
-      Object.assign(globalThis, {
-        window,
-        document,
-      });
-
-      const fetchFunction = getNetFetchAsFetch();
-
-      const bgChallenge = await getChallenge({ requestKey, fetchFunction });
-      const interpreterJavascript =
-        bgChallenge.interpreterJavascript
-          ?.privateDoNotAccessOrElseSafeScriptWrappedValue;
-
-      if (interpreterJavascript) {
-        // This is a workaround to run the interpreterJavascript code
-        // Maybe there is a better way to do this (e.g. https://github.com/Siubaak/sval ?)
-        // oxlint-disable-next-line typescript/no-implied-eval,typescript/no-unsafe-call
-        new Function(interpreterJavascript)();
-
-        yt.session.po_token = await generatePoToken(
-          fetchFunction,
-          requestKey,
-          visitorData,
-          bgChallenge,
-        ).finally(() => {
-          cleanUp(globalThis);
-        });
-      } else {
-        cleanUp(globalThis);
-      }
-    } catch {
-      cleanUp(globalThis);
-    }
-  }
+  // Shared with beatmatch (src/providers/innertube-session.ts)
+  yt = await getInnertubeSession(win);
 
   ipc.handle('download-song', (url: string) => downloadSong(url));
   ipc.on('peard:video-src-changed', (data: GetPlayerResponse) => {

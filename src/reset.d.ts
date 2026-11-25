@@ -9,8 +9,19 @@ import type { trustedTypes } from 'trusted-types';
 
 declare global {
   interface Compressor {
+    /**
+     * Entry point for plugin audio chains. Since the ym-beatmatch core patch this is
+     * actually the shared mix bus (a GainNode) typed as a media source for
+     * backwards compatibility: only connect()/disconnect() may be used on it.
+     */
     audioSource: MediaElementAudioSourceNode;
     audioContext: AudioContext;
+    /** The real MediaElementAudioSourceNode of the YTM <video> (pre-fader; for taps). */
+    mediaSource: MediaElementAudioSourceNode;
+    /** Fader for the YTM player only (owned by beatmatch; default 1). */
+    mainGain: GainNode;
+    /** Mix bus that both the player and beatmatch voices feed into. */
+    mixBus: GainNode;
   }
 
   interface DocumentEventMap {
