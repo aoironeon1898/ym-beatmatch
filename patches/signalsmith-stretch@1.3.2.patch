@@ -1,0 +1,26 @@
+diff --git a/SignalsmithStretch.js b/SignalsmithStretch.js
+index 7b39b2ae500c8563500c20a4f951878e309d845f..c3f779248c9578ad9e1bc1b3cbcd35038bed6a6a 100644
+--- a/SignalsmithStretch.js
++++ b/SignalsmithStretch.js
+@@ -114,7 +114,7 @@ function registerWorkletProcessor(Module, audioNodeKey) {
+ 					}
+ 	
+ 					let currentMapSegment = this.timeMap[0];
+-					while (this.timeMap.length > 1 && this.timeMap[1].output <= outputTime) {
++					while (this.timeMap.length > 1 && this.timeMap[1].output <= currentTime /* ym-beatmatch: keep earlier future segments */) {
+ 						this.timeMap.shift();
+ 						currentMapSegment = this.timeMap[0];
+ 					}
+diff --git a/SignalsmithStretch.mjs b/SignalsmithStretch.mjs
+index 7d5cae72e77a84143ed91ba12fc91b806dc4d9d1..b0567bd9bfdbe7c816960b660e73069209c44f6f 100644
+--- a/SignalsmithStretch.mjs
++++ b/SignalsmithStretch.mjs
+@@ -115,7 +115,7 @@ function registerWorkletProcessor(Module, audioNodeKey) {
+ 					}
+ 	
+ 					let currentMapSegment = this.timeMap[0];
+-					while (this.timeMap.length > 1 && this.timeMap[1].output <= outputTime) {
++					while (this.timeMap.length > 1 && this.timeMap[1].output <= currentTime /* ym-beatmatch: keep earlier future segments */) {
+ 						this.timeMap.shift();
+ 						currentMapSegment = this.timeMap[0];
+ 					}

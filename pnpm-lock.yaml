@@ -18,6 +18,7 @@ patchedDependencies:
   electron-is@3.0.0: 08664a5453f092fe45542f9005ffc07527b1f207447318374cba0f4d30f466a0
   kuromoji@0.1.2: 4a948f1ea45c61779fa371feb020253ccf7a24e1f7c6b2e250b3ce53d86216d4
   mdui@2.1.5: 394868d6a544a9024579fab0e169c692011206e6bdaf9955fc6702623dfb9853
+  signalsmith-stretch@1.3.2: 57ecd25003202a12a117a8010ea1fc233d1b2fe5367ecb054c1e358c2b1f5fd2
   vudio@2.1.1: 0e06c2ed11c02bdc490c209fa80070e98517c2735c641f5738b6e15d7dc1959d
 
 importers:
@@ -201,6 +202,9 @@ importers:
       serve:
         specifier: 14.2.8
         version: 14.2.8(supports-color@7.2.0)
+      signalsmith-stretch:
+        specifier: 1.3.2
+        version: 1.3.2(patch_hash=57ecd25003202a12a117a8010ea1fc233d1b2fe5367ecb054c1e358c2b1f5fd2)
       socks:
         specifier: 2.8.10
         version: 2.8.10
@@ -3611,6 +3615,9 @@ packages:
 
   signal-exit@3.0.7:
     resolution: {integrity: sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ==}
+
+  signalsmith-stretch@1.3.2:
+    resolution: {integrity: sha512-tJqRbwPCoWLSHXwO29UQ75u72IwPsHns3RG+TKzuOAp7OduJiJMzEtz32JEFbPFQcTR7aiKCIVc+/Kzw8bMZUw==}
 
   simple-update-notifier@2.0.0:
     resolution: {integrity: sha512-a2B9Y0KlNXl9u/vsW6sTIu9vGEpfKu2wRV6l1H3XEas/0gUIzGzBoP/IouTcUQbm9JWZLH3COxyn03TYlFax6w==}
@@ -7425,6 +7432,8 @@ snapshots:
   shebang-regex@3.0.0: {}
 
   signal-exit@3.0.7: {}
+
+  signalsmith-stretch@1.3.2(patch_hash=57ecd25003202a12a117a8010ea1fc233d1b2fe5367ecb054c1e358c2b1f5fd2): {}
 
   simple-update-notifier@2.0.0:
     dependencies:
